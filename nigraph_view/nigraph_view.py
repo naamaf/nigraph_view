@@ -14,33 +14,16 @@ import numpy as np
 TOOLS = "wheel_zoom,box_zoom,reset,hover"
 total_width = 1000
 
-# initiate nig.Scan class
-
-data = Scan()
-
-# Choose map  
-map_path = TextInput(value=" ", title="Map Path:")
 
 def accept_map_button():
     # add validating function
     data.set_path(map_path.value)
 
-accept_map_path = Button(label="Accept Map Input", width=int(total_width/6), height=30)
-accept_map_path.on_click(accept_map_button)
-
-# Choose atlas and atlas metadata  
-atlas_path = TextInput(value=" ", title="Atlas Path:")
-metadata_path = TextInput(value=" ", title="Atlas Metadata Path:")
 
 def accept_atlas_and_meta_button():
     # add validating function
     data.set_atlas(atlas_path.value, metadata_path.value)
 
-accept_atlas_and_meta_path = Button(label="Accept Atlas and Metadata Input", width=int(total_width/6), height=30)
-accept_atlas_and_meta_path.on_click(accept_atlas_and_meta_button)
-
-# Connectivity matrix figure
-conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2)+30, height=530) 
 
 # Compute connectivity 
 
@@ -71,9 +54,6 @@ def plot_conn_mat():
     # hover = conn_mat_fig.select(dict(type=HoverTool))
     # hover.tooltips =[("x label name", "@names_x"), ("y label name", "@names_y"), ("x label number", "@numbers_x"), ("y label number", "@numbers_y")]
     # hover.mode = 'mouse'
-
-conn_button = Button(label="Compute Connectivity Matrix", width=int(total_width/6), height=30)
-conn_button.on_click(plot_conn_mat)
 
 # Image view figure
 imageView = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100), width=450, height=450) 
