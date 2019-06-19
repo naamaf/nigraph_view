@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Main module."""
+import numpy as np 
+
 from bokeh.plotting import figure, curdoc
 from bokeh.models import Button, CustomJS
 from bokeh.layouts import column, row, layout
 from bokeh.models.ranges import Range1d
-from bokeh.models.widgets import TextInput, Button, Select, CheckboxGroup, DataTable, DateFormatter, TableColumn, PreText
-import nigraph_view as ng_v
+from bokeh.models.widgets import TextInput, Button, PreText, Dropdown, Slider
 
 # genaral 
 TOOLS = "wheel_zoom,box_zoom,reset"
@@ -18,21 +19,55 @@ header = PreText(text="Welcome to NyGraph_View", style={'font-size': '200%', 'co
 warning = PreText(text="Warning Window: No Warning for Now!")
 
 # Choose map
+def accept_map_button():
+    # add validating function
+    data.set_path(map_path.value)
+
 map_path = TextInput(value=" ", title="Map Path", width=int(total_width/4), height=50)
 accept_map_path = Button(label="Accept Map Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
-accept_map_path.on_click(ng_v.accept_map_button)
+accept_map_path.on_click(accept_map_button)
 
 # Choose atlas and atlas metadata  
+def accept_atlas_and_meta_button():
+    # add validating function
+    data.set_atlas(atlas_path.value, metadata_path.value)
+
 atlas_path = TextInput(value=" ", title="Atlas Path:", width=int(total_width/4), height=50)
 metadata_path = TextInput(value=" ", title="Atlas Metadata Path:", width=int(total_width/4), height=50)
 accept_atlas_and_meta_path = Button(label="Accept Atlas and Metadata Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
-accept_atlas_and_meta_path.on_click(ng_v.accept_atlas_and_meta_button)
-
-
+accept_atlas_and_meta_path.on_click(accept_atlas_and_meta_button)
 
 # Connectivity
+def plot_conn_mat():
+    flipped_mat = np.flip(data.connectivity_matrix, axis=0)
+    label_names = list(data.labels.area)
+    reverse_names = label_names[::-1]
+
+    # maybe use later the numbers
+    # label_numbers = list(data.labels.index) 
+    # reverse_numbers = label_numbers[::-1]
+
+    conn_mat_fig.image(image = [flipped_mat], x = 0, y = 0, dw = 7, dh = 7)  
+
+    # add labels to axes and place them in the middle of each box
+    ticks = [i+0.5 for i in range(len(label_names))]
+
+    x_label_dict = {i+0.5:label_names[i] for i in range(len(label_names))}
+    conn_mat_fig.xaxis.ticker = ticks
+    conn_mat_fig.xaxis.major_label_overrides = x_label_dict
+    conn_mat_fig.xaxis.major_label_orientation = np.pi/4
+
+    y_label_dict = {i+0.5:reverse_names[i] for i in range(len(label_names))}
+    conn_mat_fig.yaxis.ticker = ticks
+    conn_mat_fig.yaxis.major_label_overrides = y_label_dict
+
+    # currently not possible...
+    # hover = conn_mat_fig.select(dict(type=HoverTool))
+    # hover.tooltips =[("x label name", "@names_x"), ("y label name", "@names_y"), ("x label number", "@numbers_x"), ("y label number", "@numbers_y")]
+    # hover.mode = 'mouse'
+
 conn_button = Button(label="Compute Connectivity Matrix", width=int(total_width/4)*3+15, height=60)
-conn_button.on_click(np_v.plot_conn_mat)
+conn_button.on_click(plot_conn_mat)
 conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2), height=550) 
 
 # Connectivity measures table
