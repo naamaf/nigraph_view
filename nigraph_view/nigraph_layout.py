@@ -13,8 +13,8 @@ TOOLS = "wheel_zoom,box_zoom,reset"
 total_width = 1200
 
 # Header
-header = PreText(text="Welcome to NyGraph_View")
-warning = PreText(text="No Warnings for now!")
+header = PreText(text="Welcome to NyGraph_View", style={'font-size': '200%', 'color': 'blue'})
+warning = PreText(text="Warning Window: No Warning for Now!")
 
 # Choose file button
 def ChooseFileButton():
@@ -93,7 +93,7 @@ ec = Button(label="edge connectivity", width=int(total_width/8))
 ec.on_click(ComputeConnectivityMeasureEC)
 
 # fMRI header
-fMRIheader = PreText(text="For ROI analysis")
+fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
 
 # Image view figure
 imageView = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100), width=int(total_width/2), height=550) 
