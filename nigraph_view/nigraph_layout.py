@@ -10,6 +10,7 @@ from bokeh.models.widgets import TextInput, Button, Select, CheckboxGroup, DataT
 # genaral 
 TOOLS = "wheel_zoom,box_zoom,reset"
 
+data_test = 1
 total_width = 1200
 
 # Header
