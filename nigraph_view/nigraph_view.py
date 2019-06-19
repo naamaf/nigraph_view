@@ -89,4 +89,3 @@ curdoc().add_root(layout([
     [fileButton, mapName, ConnectivityButton, AtlasButton, atlasName,MetadataButton],
     [connectivityMatrix, [sliceDropdownMenu, imageView]],
     [connectivityDropdown, connectivityMeasure, roiButton, roiName, roiDropdownMenu],
-], sizing_mode="fixed"))
