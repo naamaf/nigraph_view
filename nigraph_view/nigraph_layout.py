@@ -5,10 +5,12 @@ import numpy as np
 import nigraph as ng
 
 from bokeh.plotting import figure, curdoc
-from bokeh.models import Button, CustomJS
+from bokeh.models import Button, CustomJS, Div
 from bokeh.layouts import column, row, layout
 from bokeh.models.ranges import Range1d
 from bokeh.models.widgets import TextInput, Button, PreText, Dropdown, Slider
+from functools import partial
+
 
 # genaral 
 TOOLS = "wheel_zoom,box_zoom,reset"
@@ -83,13 +85,6 @@ conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2), height=550)
 def connectivity_measure(text_name, label):
     text_name.text = str(data.measure(label))
 
-cc = Button()
-msp = Button()
-dd = Button()
-nc = Button()
-ec = Button()
-mcc = Button()
-
 cc_value = PreText(text=" ")
 msp_value = PreText(text=" ")
 dd_value = PreText(text=" ")
@@ -97,17 +92,18 @@ nc_value = PreText(text=" ")
 ec_value = PreText(text=" ")
 mcc_value = PreText(text=" ")
 
-for mes_name, button_name, text_name in [
-    ["Closness Centrality", cc, cc_value],
-    ["Mean Shortest Path", msp, msp_value],
-    ["Degree Distribution", dd, dd_value],
-    ["Node Connectivity", nc, nc_value],
-    ["Edge Connectivity", ec, ec_value],
-    ["Mean Clustering", mcc, mcc_value],
-]:
-    button_name.label=mes_name
-    button_name.width=int(total_width/8)
-    #button_name.on.click(lambda x : connectivity_measure(text_name, x.label))
+cc = Button(label="Closness Centrality", width=int(total_width/8))
+cc.on_click(partial(connectivity_measure, text_name=cc_value, label=cc.label))
+msp = Button(label="Mean Shortest Path", width=int(total_width/8))
+msp.on_click(partial(connectivity_measure, text_name=msp_value, label=msp.label))
+dd = Button(label="Degree Distribution", width=int(total_width/8))
+dd.on_click(partial(connectivity_measure, text_name=dd_value, label=dd.label))
+nc = Button(label="Node Connectivity", width=int(total_width/8))
+nc.on_click(partial(connectivity_measure, text_name=nc_value, label=nc.label))
+ec = Button(label="Edge Connectivity", width=int(total_width/8))
+ec.on_click(partial(connectivity_measure, text_name=ec_value, label=ec.label))
+mcc = Button(label="Mean Clustering", width=int(total_width/8))
+mcc.on_click(partial(connectivity_measure, text_name=mcc_value, label=mcc.label))
 
 # fMRI header
 fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
@@ -140,7 +136,7 @@ def remove_brain(old_brain):
 def plot_ROI_fig():
     img = data.seed_based
     if img is None:
-        pass # add a warning
+        warning_win.text = "Wrong File!"
 
     ROI_fig.image([img[slider.value, :, :].T], x=0, y=0, dw=(img.shape[1]/img.shape[2])*7, dh=7, palette="Greys256", name = 'brain')
 
