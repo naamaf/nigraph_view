@@ -19,13 +19,13 @@ header = PreText(text="Welcome to NyGraph_View", style={'font-size': '200%', 'co
 warning = PreText(text="Warning Window: No Warning for Now!")
 
 # Choose map
-def accept_map_button():
+def accept_map_path():
     # add validating function
-    data.set_path(map_path.value)
+    data.set_file(map_path.value)
 
 map_path = TextInput(value=" ", title="Map Path", width=int(total_width/4), height=50)
-accept_map_path = Button(label="Accept Map Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
-accept_map_path.on_click(accept_map_button)
+accept_map_button = Button(label="Accept Map Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
+accept_map_button.on_click(accept_map_path)
 
 # Choose atlas and atlas metadata  
 def accept_atlas_and_meta_button():
@@ -105,20 +105,63 @@ ec.on_click(ComputeConnectivityMeasureEC)
 # fMRI header
 fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
 
-# Image view figure
-imageView = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100), width=int(total_width/2), height=550) 
+# ROI stuff
 
-# Slice direction dropdown
+# Choose ROI to use
+def accept_ROI_path_and_prefix():
+    # add validating function
+    data.set_ROI(ROI_path.value, ROI_prefix.value)
+    
 
-sliceDropdownMenu = Select(title="For fMRI Connectivity Only: Choose Direction:", value="X", options=["X", "Y", "Z"], width=int(total_width/2), height=50)
+ROI_path = TextInput(value=" ", title="ROI Path", width=int(total_width/4), height=50)
+ROI_prefix = TextInput(value=" ", title="ROI Prefix", width=int(total_width/4), height=50)
 
+accept_ROI_button = Button(label="Accept ROI Inputs", width=int(total_width/4), height=32, margin=[23,0,0,0])
+accept_ROI_button.on_click(accept_ROI_path_and_prefix)
 
-roiButton = TextInput(value=" ", title="Choose ROI", width=int(total_width/4), height=50)
+# initiate ROI figure stiff
+ROI_fig = figure(tools=TOOLS, width=int(total_width/2), height=550)
+drop_menu = [("dim1", '0'), ("dim2", '1'), ("dim3", '2')]
+choose_dim = Dropdown(label="choose dimension to slide", menu=drop_menu, value='0')
+slider = Slider(start=0, end=100, step=1, value=40)
 
-# OK button
+def remove_brain(old_brain):
+    for glyph in old_brain:
+        ROI_fig.renderers.remove(glyph)
 
-approveROIButton = Button(label="Approve ROI", width=int(total_width/4), height=32, margin=[23,0,0,0])
-approveROIButton.on_click(approveROI)
+def plot_ROI_fig():
+    img = data.seed_based()
+    if img is None:
+        pass # add a warning
+
+    ROI_fig.image([img[slider.value, :, :].T], x=0, y=0, dw=(img.shape[1]/img.shape[2])*7, dh=7, palette="Greys256", name = 'brain')
+
+    def update(attrname, old, new):
+        dim = int(choose_dim.value)
+        slider.end = img.shape[dim]
+        current_slice = slider.value
+
+        old_brain = ROI_fig.select('brain')
+        remove_brain(old_brain)
+            
+        if dim == 0:
+            ROI_fig.x_range = Range1d(0,img.shape[1])
+            ROI_fig.y_range = Range1d(0,img.shape[2])
+            ROI_fig.image([img[current_slice, :, :].T], x=0, y=0, dw=(img.shape[1]/img.shape[2])*7, dh=7, palette="Greys256",name = 'brain')
+        elif dim == 1:
+            ROI_fig.x_range = Range1d(0,img.shape[0])
+            ROI_fig.y_range = Range1d(0,img.shape[2])
+            ROI_fig.image([img[:, current_slice, :].T], x=0, y=0, dw=7, dh=7, palette="Greys256", name = 'brain')
+        elif dim == 2:
+            ROI_fig.x_range = Range1d(0,img.shape[0])
+            ROI_fig.y_range = Range1d(0,img.shape[1])
+            ROI_fig.image([img[:, :, current_slice].T], x=0, y=0, dw=7, dh=(img.shape[1]/img.shape[0])*7, palette="Greys256", name = 'brain')
+
+    for w in [slider, choose_dim]:
+        w.on_change("value",update)
+        
+plot_button_ROI_fig = Button(label="Plot ROI", width=int(total_width/4), height=32, margin=[23,0,0,0])
+plot_button_ROI_fig.on_click(plot_ROI_fig)
 
 #orgenize figures
 curdoc().add_root(layout([
@@ -133,3 +176,21 @@ curdoc().add_root(layout([
     [sliceDropdownMenu],
     [imageView],
 ]))
+
+
+
+
+# Image view figure
+imageView = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100), width=int(total_width/2), height=550) 
+
+# Slice direction dropdown
+
+sliceDropdownMenu = Select(title="For fMRI Connectivity Only: Choose Direction:", value="X", options=["X", "Y", "Z"], width=int(total_width/2), height=50)
+
+
+roiButton = TextInput(value=" ", title="Choose ROI", width=int(total_width/4), height=50)
+
+# OK button
+
+approveROIButton = Button(label="Approve ROI", width=int(total_width/4), height=32, margin=[23,0,0,0])
+approveROIButton.on_click(approveROI)
