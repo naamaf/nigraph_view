@@ -2,6 +2,7 @@
 
 """Main module."""
 import numpy as np 
+import nigraph as ng
 
 from bokeh.plotting import figure, curdoc
 from bokeh.models import Button, CustomJS
@@ -12,7 +13,7 @@ from bokeh.models.widgets import TextInput, Button, PreText, Dropdown, Slider
 # genaral 
 TOOLS = "wheel_zoom,box_zoom,reset"
 total_width = 1200
-data = Scan()
+data = ng.Scan()
 
 # Header
 header = PreText(text="Welcome to NyGraph_View", style={'font-size': '200%', 'color': 'blue'})
@@ -38,16 +39,31 @@ accept_atlas_and_meta_path = Button(label="Accept Atlas and Metadata Input", wid
 accept_atlas_and_meta_path.on_click(accept_atlas_and_meta_button)
 
 # Connectivity
+def name_array(names):
+    x_labels = [list(names) for i in range(len(names))]
+    y_labels = x_labels[::-1]
+    return x_labels, y_labels
+
 def plot_conn_mat():
-    flipped_mat = np.flip(data.connectivity_matrix, axis=0)
-    label_names = list(data.labels.area)
-    reverse_names = label_names[::-1]
+    #flipped_mat = np.identity(3) #np.corrcoef(np.random.randint(10, size=(5,10))) ##np.flip(data.connectivity_matrix, axis=0)
+    #label_names = ['a','b','c','d','e']  #list(data.labels.area)
+    #reverse_names = label_names[::-1]
+
+    location_source = ColumnDataSource(
+        data = {
+            "image" : [flipped_mat],
+            "label_names": [],
+            "reverse_names": []
+            "label_numbers": list(data.labels.index)
+            "reverse_numbers": label_numbers[::-1]
+            })
+        [data["label_names"], data["reverse_names"] = name_array(labels)
 
     # maybe use later the numbers
     # label_numbers = list(data.labels.index) 
     # reverse_numbers = label_numbers[::-1]
 
-    conn_mat_fig.image(image = [flipped_mat], x = 0, y = 0, dw = 7, dh = 7)  
+    conn_mat_fig.image("image", x = 0, y = 0, dw = 7, dh = 7, source = location_source)  
 
     # add labels to axes and place them in the middle of each box
     ticks = [i+0.5 for i in range(len(label_names))]
@@ -65,42 +81,64 @@ def plot_conn_mat():
     # hover = conn_mat_fig.select(dict(type=HoverTool))
     # hover.tooltips =[("x label name", "@names_x"), ("y label name", "@names_y"), ("x label number", "@numbers_x"), ("y label number", "@numbers_y")]
     # hover.mode = 'mouse'
+    conn_mat_fig.add_tools(HoverTool(tooltips =[("value:", "@image"), ("x", "@label_names"), ("y", "@reverse_names"), ("x_num", "@label_numbers"), ("y_num", "reverse_names"]))
 
 conn_button = Button(label="Compute Connectivity Matrix", width=int(total_width/4)*3+15, height=60)
 conn_button.on_click(plot_conn_mat)
 conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2), height=550) 
 
 # Connectivity measures table
-def measure(label):
-    return label
 def ComputeConnectivityMeasureCC():
-    cc_value.text=str(measure(cc.label))
+    cc_value.text=str(data.measure(cc.label))
 def ComputeConnectivityMeasureMSP():
-    msp_value.text=str(measure(msp.label))
+    msp_value.text=str(data.measure(msp.label))
 def ComputeConnectivityMeasureDD():
-    dd_value.text=str(measure(dd.label))
+    dd_value.text=str(data.measure(dd.label))
 def ComputeConnectivityMeasureNC():
-    nc_value.text=str(measure(nc.label))
+    nc_value.text=str(data.measure(nc.label))
 def ComputeConnectivityMeasureEC():
-    ec_value.text=str(measure(ec.label))
+    ec_value.text=str(data.measure(ec.label))
+def ComputeConnectivityMeasureMCC():
+    mcc_value.text=str(data.measure(mcc.label))
 
-cc_value = PreText(text="A")
-msp_value = PreText(text="B")
-dd_value = PreText(text="C")
-nc_value = PreText(text="D")
-ec_value = PreText(text="E")
+cc_value = PreText(text=" ")
+msp_value = PreText(text=" ")
+dd_value = PreText(text=" ")
+nc_value = PreText(text=" ")
+ec_value = PreText(text=" ")
+mcc_value = PreText(text=" ")
 
 # Compute connectivity measure dropdown
-cc = Button(label="closness centrality", width=int(total_width/8))
-cc.on_click(ComputeConnectivityMeasureCC)
-msp = Button(label="mean shortest path", width=int(total_width/8))
-msp.on_click(ComputeConnectivityMeasureMSP)
-dd = Button(label="degree distribution", width=int(total_width/8))
-dd.on_click(ComputeConnectivityMeasureDD)
-nc = Button(label="node connectivity", width=int(total_width/8))
-nc.on_click(ComputeConnectivityMeasureNC)
-ec = Button(label="edge connectivity", width=int(total_width/8))
-ec.on_click(ComputeConnectivityMeasureEC)
+#cc = Button(label="Closness Centrality", width=int(total_width/8))
+#cc.on_click(ComputeConnectivityMeasureCC)
+#msp = Button(label="Mean Shortest Path", width=int(total_width/8))
+#msp.on_click(ComputeConnectivityMeasureMSP)
+#dd = Button(label="Degree Distribution", width=int(total_width/8))
+#dd.on_click(ComputeConnectivityMeasureDD)
+#nc = Button(label="Node Connectivity", width=int(total_width/8))
+#nc.on_click(ComputeConnectivityMeasureNC)
+#ec = Button(label="Edge Connectivity", width=int(total_width/8))
+#ec.on_click(ComputeConnectivityMeasureEC)
+for name, func in [
+    ["Closness Centrality", ComputeConnectivityMeasureCC],
+    ["Mean Shortest Path", ComputeConnectivityMeasureMSP],
+    ["Degree Distribution", ComputeConnectivityMeasureDD],
+    ["Node Connectivity", ComputeConnectivityMeasureNC],
+    ["Edge Connectivity", ComputeConnectivityMeasureEC],
+    ["Mean Clustering", ComputeConnectivityMeasureMCC]
+]:
+cc = Button(label=name[0], width=int(total_width/8))
+cc.on_click(func[0])
+msp = Button(label=name[1], width=int(total_width/8))
+msp.on_click(func[1])
+dd = Button(label=name[2], width=int(total_width/8))
+dd.on_click(func[2])
+nc = Button(label=name[3], width=int(total_width/8))
+nc.on_click(func[3])
+ec = Button(label=name[4], width=int(total_width/8))
+ec.on_click(func[4])
+mcc = Button(label=name[5], width=int(total_width/8))
+mcc.on_click(func[5])
 
 # fMRI header
 fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
@@ -170,7 +208,7 @@ curdoc().add_root(layout([
     [map_path, accept_map_path], 
     [atlas_path, metadata_path, accept_atlas_and_meta_path],
     [conn_button],
-    [conn_mat_fig, [[cc,cc_value],[msp,msp_value],[dd,dd_value],[nc,nc_value],[ec,ec_value]]],
+    [conn_mat_fig, [[cc,cc_value],[msp,msp_value],[dd,dd_value],[nc,nc_value],[ec,ec_value],[mcc,mcc_value]]],
     [fMRIheader],
     [roiButton, approveROIButton],
     [sliceDropdownMenu],
