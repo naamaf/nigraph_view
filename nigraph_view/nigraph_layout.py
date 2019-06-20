@@ -17,26 +17,31 @@ data = ng.Scan()
 
 # Header
 header = PreText(text="Welcome to NiGraph_View", style={'font-size': '200%', 'color': 'blue'})
-warning = PreText(text="Warning Window: No Warning for Now!")
+warning_win = PreText(text="Warning Window: No Warning for Now!")
 
 # Choose map
 def accept_map_path():
     # add validating function
-    data.set_file(map_path.value)
+    try:
+        data.set_file(map_path.value)
+    except Warning as e:
+        warning_win.text = e
 
 map_path = TextInput(value=" ", title="Map Path", width=int(total_width/4), height=50)
 accept_map_button = Button(label="Accept Map Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
 accept_map_button.on_click(accept_map_path)
 
 # Choose atlas and atlas metadata  
-def accept_atlas_and_meta_button():
-    # add validating function
-    data.set_atlas(atlas_path.value, metadata_path.value)
+def accept_atlas_and_meta_path():
+    try:
+        data.set_atlas(atlas_path.value, metadata_path.value)
+    except Warning as e:
+        warning_win.text = e
 
 atlas_path = TextInput(value=" ", title="Atlas Path:", width=int(total_width/4), height=50)
 metadata_path = TextInput(value=" ", title="Atlas Metadata Path:", width=int(total_width/4), height=50)
-accept_atlas_and_meta_path = Button(label="Accept Atlas and Metadata Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
-accept_atlas_and_meta_path.on_click(accept_atlas_and_meta_button)
+accept_atlas_and_meta_button = Button(label="Accept Atlas and Metadata Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
+accept_atlas_and_meta_button.on_click(accept_atlas_and_meta_path)
 
 # Connectivity
 def label_array(orig_list):
@@ -78,18 +83,12 @@ conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2), height=550)
 def connectivity_measure(text_name, label):
     text_name.text = str(data.measure(label))
 
-#def ComputeConnectivityMeasureCC():
-#    cc_value.text=str(data.measure(cc.label))
-#def ComputeConnectivityMeasureMSP():
-#    msp_value.text=str(data.measure(msp.label))
-#def ComputeConnectivityMeasureDD():
-#    dd_value.text=str(data.measure(dd.label))
-#def ComputeConnectivityMeasureNC():
-#    nc_value.text=str(data.measure(nc.label))
-#def ComputeConnectivityMeasureEC():
-#    ec_value.text=str(data.measure(ec.label))
-#def ComputeConnectivityMeasureMCC():
-#    mcc_value.text=str(data.measure(mcc.label))
+cc = Button()
+msp = Button()
+dd = Button()
+cn = Button()
+ce = Button()
+mcc = Button()
 
 cc_value = PreText(text=" ")
 msp_value = PreText(text=" ")
@@ -98,7 +97,16 @@ nc_value = PreText(text=" ")
 ec_value = PreText(text=" ")
 mcc_value = PreText(text=" ")
 
-    button_name = Button(label=mes_name, width=int(total_width/8))
+for mes_name, button_name, text_name in [
+    ["Closness Centrality", cc, cc_value],
+    ["Mean Shortest Path", msp, msp_value],
+    ["Degree Distribution", dd, dd_value],
+    ["Node Connectivity", nc, nc_value],
+    ["Edge Connectivity", ec, ec_value],
+    ["Mean Clustering", mcc, mcc_value],
+]:
+    button_name.label=mes_name
+    button_name.width=int(total_width/8)
     button_name.on.click(lambda x : connectivity_measure(text_name, x.label))
 
 # fMRI header
@@ -108,10 +116,11 @@ fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color
 
 # Choose ROI to use
 def accept_ROI_path_and_prefix():
-    # add validating function
-    data.set_ROI(ROI_path.value, ROI_prefix.value)
+    try:
+        data.set_ROI(ROI_path.value, ROI_prefix.value)
+    except Warning as e:
+        warning_win.text = e
     
-
 ROI_path = TextInput(value=" ", title="ROI Path", width=int(total_width/4), height=50)
 ROI_prefix = TextInput(value=" ", title="ROI Prefix", width=int(total_width/4), height=50)
 
@@ -165,15 +174,15 @@ plot_button_ROI_fig.on_click(plot_ROI_fig)
 #orgenize figures
 curdoc().add_root(layout([
     [header],
-    [warning],
-    [map_path, accept_map_path], 
-    [atlas_path, metadata_path, accept_atlas_and_meta_path],
+    [warning_win],
+    [map_path, accept_map_button], 
+    [atlas_path, metadata_path, accept_atlas_and_meta_button],
     [conn_button],
     [conn_mat_fig, [[cc,cc_value],[msp,msp_value],[dd,dd_value],[nc,nc_value],[ec,ec_value],[mcc,mcc_value]]],
     [fMRIheader],
     [ROI_path, ROI_prefix, accept_ROI_button],
     [choose_dim],
-    [slider],
     [ROI_fig],
+    [slider],
 ]))
 
