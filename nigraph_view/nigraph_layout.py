@@ -10,7 +10,7 @@ from bokeh.layouts import column, row, layout
 from bokeh.models.ranges import Range1d
 from bokeh.models.widgets import TextInput, Button, PreText, Dropdown, Slider
 from functools import partial
-
+from pathlib import Path
 
 # genaral 
 TOOLS = "wheel_zoom,box_zoom,reset"
@@ -25,23 +25,25 @@ warning_win = PreText(text="Warning Window: No Warning for Now!")
 def accept_map_path():
     # add validating function
     try:
-        data.set_file(map_path.value)
-    except Warning as e:
-        warning_win.text = e
+        data.set_file(Path(map_path.value))
+    except UserWarning as e:
+        warning_win.text = str(e)
 
-map_path = TextInput(value=" ", title="Map Path", width=int(total_width/4), height=50)
+map_path = TextInput(value="", title="Map Path", width=int(total_width/4), height=50)
 accept_map_button = Button(label="Accept Map Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
 accept_map_button.on_click(accept_map_path)
 
 # Choose atlas and atlas metadata  
 def accept_atlas_and_meta_path():
     try:
-        data.set_atlas(atlas_path.value, metadata_path.value)
-    except Warning as e:
-        warning_win.text = e
+        data.set_atlas(Path(atlas_path.value), Path(metadata_path.value))
+        
+    except UserWarning as e:
+        warning_win.text = str(e)
+        
 
-atlas_path = TextInput(value=" ", title="Atlas Path:", width=int(total_width/4), height=50)
-metadata_path = TextInput(value=" ", title="Atlas Metadata Path:", width=int(total_width/4), height=50)
+atlas_path = TextInput(value="", title="Atlas Path:", width=int(total_width/4), height=50)
+metadata_path = TextInput(value="", title="Atlas Metadata Path:", width=int(total_width/4), height=50)
 accept_atlas_and_meta_button = Button(label="Accept Atlas and Metadata Input", width=int(total_width/4), height=32, margin=[23,0,0,0])
 accept_atlas_and_meta_button.on_click(accept_atlas_and_meta_path)
 
@@ -113,8 +115,8 @@ fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color
 # Choose ROI to use
 def accept_ROI_path_and_prefix():
     try:
-        data.set_ROI(ROI_path.value, ROI_prefix.value)
-    except Warning as e:
+        data.set_roi(ROI_path.value, ROI_prefix.value)
+    except UserWarning as e:
         warning_win.text = e
     
 ROI_path = TextInput(value=" ", title="ROI Path", width=int(total_width/4), height=50)
