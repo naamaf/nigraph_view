@@ -75,18 +75,21 @@ conn_button.on_click(plot_conn_mat)
 conn_mat_fig = figure(tools=TOOLS, width=int(total_width/2), height=550) 
 
 # Connectivity measures table
-def ComputeConnectivityMeasureCC():
-    cc_value.text=str(data.measure(cc.label))
-def ComputeConnectivityMeasureMSP():
-    msp_value.text=str(data.measure(msp.label))
-def ComputeConnectivityMeasureDD():
-    dd_value.text=str(data.measure(dd.label))
-def ComputeConnectivityMeasureNC():
-    nc_value.text=str(data.measure(nc.label))
-def ComputeConnectivityMeasureEC():
-    ec_value.text=str(data.measure(ec.label))
-def ComputeConnectivityMeasureMCC():
-    mcc_value.text=str(data.measure(mcc.label))
+def connectivity_measure(text_name, label):
+    text_name.text = str(data.measure(label))
+
+#def ComputeConnectivityMeasureCC():
+#    cc_value.text=str(data.measure(cc.label))
+#def ComputeConnectivityMeasureMSP():
+#    msp_value.text=str(data.measure(msp.label))
+#def ComputeConnectivityMeasureDD():
+#    dd_value.text=str(data.measure(dd.label))
+#def ComputeConnectivityMeasureNC():
+#    nc_value.text=str(data.measure(nc.label))
+#def ComputeConnectivityMeasureEC():
+#    ec_value.text=str(data.measure(ec.label))
+#def ComputeConnectivityMeasureMCC():
+#    mcc_value.text=str(data.measure(mcc.label))
 
 cc_value = PreText(text=" ")
 msp_value = PreText(text=" ")
@@ -95,26 +98,8 @@ nc_value = PreText(text=" ")
 ec_value = PreText(text=" ")
 mcc_value = PreText(text=" ")
 
-for name, func in [
-    ["Closness Centrality", ComputeConnectivityMeasureCC],
-    ["Mean Shortest Path", ComputeConnectivityMeasureMSP],
-    ["Degree Distribution", ComputeConnectivityMeasureDD],
-    ["Node Connectivity", ComputeConnectivityMeasureNC],
-    ["Edge Connectivity", ComputeConnectivityMeasureEC],
-    ["Mean Clustering", ComputeConnectivityMeasureMCC]
-]:
-cc = Button(label=name[0], width=int(total_width/8))
-cc.on_click(func[0])
-msp = Button(label=name[1], width=int(total_width/8))
-msp.on_click(func[1])
-dd = Button(label=name[2], width=int(total_width/8))
-dd.on_click(func[2])
-nc = Button(label=name[3], width=int(total_width/8))
-nc.on_click(func[3])
-ec = Button(label=name[4], width=int(total_width/8))
-ec.on_click(func[4])
-mcc = Button(label=name[5], width=int(total_width/8))
-mcc.on_click(func[5])
+    button_name = Button(label=mes_name, width=int(total_width/8))
+    button_name.on.click(lambda x : connectivity_measure(text_name, x.label))
 
 # fMRI header
 fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
@@ -136,8 +121,8 @@ accept_ROI_button.on_click(accept_ROI_path_and_prefix)
 # initiate ROI figure stiff
 ROI_fig = figure(tools=TOOLS, width=int(total_width/2), height=550)
 drop_menu = [("dim1", '0'), ("dim2", '1'), ("dim3", '2')]
-choose_dim = Dropdown(label="choose dimension to slide", menu=drop_menu, value='0')
-slider = Slider(start=0, end=100, step=1, value=40)
+choose_dim = Dropdown(label="choose dimension to slide", menu=drop_menu, value='0', width=int(total_width/2), height=50)
+slider = Slider(start=0, end=100, step=1, value=40, width=int(total_width/2), height=50)
 
 def remove_brain(old_brain):
     for glyph in old_brain:
@@ -186,25 +171,9 @@ curdoc().add_root(layout([
     [conn_button],
     [conn_mat_fig, [[cc,cc_value],[msp,msp_value],[dd,dd_value],[nc,nc_value],[ec,ec_value],[mcc,mcc_value]]],
     [fMRIheader],
-    [roiButton, approveROIButton],
-    [sliceDropdownMenu],
-    [imageView],
+    [ROI_path, ROI_prefix, accept_ROI_button],
+    [choose_dim],
+    [slider],
+    [ROI_fig],
 ]))
 
-
-
-
-# Image view figure
-imageView = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100), width=int(total_width/2), height=550) 
-
-# Slice direction dropdown
-
-sliceDropdownMenu = Select(title="For fMRI Connectivity Only: Choose Direction:", value="X", options=["X", "Y", "Z"], width=int(total_width/2), height=50)
-
-
-roiButton = TextInput(value=" ", title="Choose ROI", width=int(total_width/4), height=50)
-
-# OK button
-
-approveROIButton = Button(label="Approve ROI", width=int(total_width/4), height=32, margin=[23,0,0,0])
-approveROIButton.on_click(approveROI)
