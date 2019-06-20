@@ -52,8 +52,8 @@ def label_array(orig_list):
 
 def get_conn_datasource():
     conn_mat = np.flip(data.connectivity_matrix, axis=0) # slipped so diagonal is top to bottom
-    label_names = data.labels.area
-    label_numbers = data.labels.index 
+    label_names = list(data.labels.area)
+    label_numbers = list(data.labels.index) 
     x_names, y_names = label_array(label_names)
     x_numbers, y_numbers = label_array(label_numbers)
     
@@ -86,8 +86,8 @@ def connectivity_measure(text_name, label):
 cc = Button()
 msp = Button()
 dd = Button()
-cn = Button()
-ce = Button()
+nc = Button()
+ec = Button()
 mcc = Button()
 
 cc_value = PreText(text=" ")
@@ -107,7 +107,7 @@ for mes_name, button_name, text_name in [
 ]:
     button_name.label=mes_name
     button_name.width=int(total_width/8)
-    button_name.on.click(lambda x : connectivity_measure(text_name, x.label))
+    #button_name.on.click(lambda x : connectivity_measure(text_name, x.label))
 
 # fMRI header
 fMRIheader = PreText(text="For ROI analysis", style={'font-size': '200%', 'color': 'blue'})
